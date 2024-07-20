@@ -1,0 +1,23 @@
+package week1.day1;
+
+public class Chrome {
+
+	public static void main(String[] args) {
+		// datatype		variableName		Value
+		string [] arr = { version, developer, isBeta, releaseYear, shortCutKey }
+	
+		float version= 91.0f;
+		String developer = "google";
+		boolean isBeta = false;
+		int releaseYear = 2008;
+		char shortCutKey = "C";
+		
+		
+		
+		
+System.out.println(arr);	
+			
+
+	}
+
+}

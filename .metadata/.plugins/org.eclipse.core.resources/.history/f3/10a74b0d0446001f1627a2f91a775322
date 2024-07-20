@@ -1,0 +1,16 @@
+package week1.day1;
+
+public class Chrome {
+
+	public static void main(String[] args) {
+		// datatype		variableName		Value
+	
+		float value1= 91.0f;
+		String x = "sahith";
+		
+System.out.println(x);	
+			
+
+	}
+
+}
