@@ -1,5 +1,0 @@
-2024-07-19 13:01:08,685 [Worker-2: Loading available Gradle versions] INFO  o.e.b.c.i.u.g.PublishedGradleVersions - Gradle version information cache is up-to-date. Trying to read.
-2024-07-19 21:34:29,092 [Worker-28: Push to JulyWD refs/heads/main - origin] INFO  o.a.s.c.u.s.e.EdDSASecurityProviderRegistrar - getOrCreateProvider(EdDSA) created instance of net.i2p.crypto.eddsa.EdDSASecurityProvider
-2024-07-19 21:34:29,461 [Worker-28: Push to JulyWD refs/heads/main - origin] INFO  o.a.s.c.i.DefaultIoServiceFactoryFactory - No detected/configured IoServiceFactoryFactory; using Nio2ServiceFactoryFactory
-2024-07-19 21:35:32,707 [sshd-JGitSshClient[3b1ef4ec]-nio2-thread-1] WARN  o.e.j.i.t.sshd.JGitClientSession - exceptionCaught(JGitClientSession[git@github.com/140.82.114.4:22])[state=Opened] SshException: Server key did not validate
-2024-07-19 21:35:32,713 [sshd-JGitSshClient[3b1ef4ec]-nio2-thread-1] INFO  o.e.j.i.t.sshd.JGitClientSession - Disconnecting(JGitClientSession[git@github.com/140.82.114.4:22]): SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE - Server key did not validate
