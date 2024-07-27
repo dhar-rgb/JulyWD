@@ -1,6 +1,7 @@
 package marathon1;
 
 import java.time.Duration;
+import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -68,6 +69,33 @@ public class BagsForBoys {
                 By.cssSelector(".a-section.a-spacing-small.a-spacing-top-small")
             ));
             System.out.println("Total number of search results for 'Bags for boys': " + searchResultsText.getText());
+
+            // Sort by "Newest Arrivals"
+            WebElement sortDropdown = driver.findElement(By.xpath("//span[@class='a-dropdown-container']"));
+            sortDropdown.click();
+            WebElement newestArrivalsOption = driver.findElement(By.xpath("//a[text()='Newest Arrivals']"));
+            newestArrivalsOption.click();
+            
+            driver.findElement(By.xpath("//span[@class='a-size-base-plus a-color-base a-text-normal']")).click();
+            
+            // Wait for the sorting to be applied and fetch product titles and pricing
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[@class='a-size-base-plus a-color-base a-text-normal']")));
+
+            List<WebElement> productTitles = driver.findElements(By.xpath("//span[@class='a-size-base-plus a-color-base a-text-normal']"));
+            List<WebElement> productPrices = driver.findElements(By.xpath("//span[@class='a-price']"));
+
+            for (int i = 0; i < 2; i++) {
+                System.out.println("Product Title: " + productTitles.get(i).getText());
+                if (i < productPrices.size()) {
+                    System.out.println("Product Price: " + productPrices.get(i).getText());
+                } else {
+                    System.out.println("Product Price: Not available");
+                }
+            }
+            
+         // Print the page title at the end of the script
+            String pageTitle = driver.getTitle();
+            System.out.println("Page Title: " + pageTitle);
 
         } catch (Exception e) {
             e.printStackTrace();
