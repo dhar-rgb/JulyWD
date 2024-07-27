@@ -192,10 +192,15 @@ public class pvrcinemaTicketBooking {
             System.out.println("your reserved seat number is " + seatinfo);
             System.out.println("your grandtotal is " + grandtotal);
             
-         // Print the page title at the end of the script
+            // Print the page title at the end of the script
             String pageTitle = driver.getTitle();
             System.out.println("Page Title: " + pageTitle);
 
+            // for OTP verification
+            
+            driver.findElement(By.xpath("(//form)[3]//span")).sendKeys('1234567890');
+            driver.findElement(By.xpath("//div[@class='register-btn']/button")).click();
+            
             
             
             
