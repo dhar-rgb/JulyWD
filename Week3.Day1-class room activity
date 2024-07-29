@@ -1,0 +1,106 @@
+// Implement and abstract class ( class room activity for Week3.Day1)
+// folder location (C://projects/JulyWD)
+
+ 
+Classroom Assignment <3A>: Demonstrating Abstraction in Java
+Learning Objective
+To understand and implement the concept of Abstraction in Java by creating interface, an abstract class and a concrete 
+class with the context of online payments 
+Expected Completion Time:
+Best Case: 20 minutes
+Average Case: 30 minutes
+Assignment Details:
+Design an abstract class that implements an interface with abstract methods representing various payment methods and 
+further implement those methods in a concrete class.
+Requirements:
+Create an Interface Payments with the following abstract methods:
+ - cashOnDelivery()
+ - upiPayments()
+ - cardPayments()
+ - internetBanking()
+Create an Abstract Class CanaraBank that implements Payments interface and adds `recordPaymentDetails()` for 
+payment specifics.
+Create a Concrete Class Amazon that inherits CanaraBank, implementing methods.
+Hints to Solve:
+- Utilize appropriate keywords to signify that a class is implementing an interface.
+- Implement abstract methods in the concrete class to provide specific functionality
+Reference Links:
+Abstraction in Java - Oracle Docs
+Expected Outcome:
+Upon completion, you should be able to:
+- Grasp the concept of Abstraction in Java, including interface and concrete class.
+- Created a practical example of how abstraction allows for the definition of a common structure while leaving 
+specific implementations to subclass.
+
+// Create an implement class Payment.java
+package Week3.Day1;
+
+public interface Payments {
+	public void cashOnDelivery();
+	public void upiPayments();
+	public void cardPayments();
+	public void internetBanking();
+
+
+
+}
+
+
+
+/// Create an abstract class (CanaraBank.java)
+
+package Week3.Day1;
+
+import day2.Payments;
+
+public abstract class CanaraBank implements Payments {
+	//public abstract void recordPaymentDetails()`;
+	
+public void recordPaymentDetails(){
+System.out.println("deposited 2000INR`");
+}
+
+}
+
+
+// open a new concrete class that uses and implements the implement class 
+//(Payments.java) and abstract method (CanaraBank.java)
+
+public class Amazon extends CanaraBank {
+	public static void main(String[] args) {
+		Amazon transaction = new Amazon();
+		
+		transaction.cardPayments();
+		transaction.cashOnDelivery();
+		transaction.upiPayments();
+		transaction.cardPayments();
+		transaction.internetBanking();
+		transaction.recordPaymentDetails();
+	}
+
+	@Override
+	public void cashOnDelivery() {
+		// TODO Auto-generated method stub
+		System.out.println("dispersed cash of 1000");
+		
+	}
+
+	@Override
+	public void upiPayments() {
+		System.out.println("upi payments was added to the account");
+		
+	}
+
+	@Override
+	public void cardPayments() {
+		System.out.println("made month card payment of 100INR");
+		
+	}
+
+	@Override
+	public void internetBanking() {
+		System.out.println("purchased an item from amazon");
+		
+	}
+
+}
