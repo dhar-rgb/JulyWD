@@ -1,0 +1,416 @@
+// BaseClass.java
+package marathon3;
+
+import java.io.IOException;
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Parameters;
+
+public class BaseClass {
+    public RemoteWebDriver driver;
+    public String fileName;
+
+    @Parameters({"browser", "url", "username", "password"})
+    @BeforeMethod
+    public void preCondition(String browser, String URL, String uName, String pWord) {
+        if (browser.equalsIgnoreCase("Chrome")) {
+            driver = new ChromeDriver();
+        } else {
+            driver = new EdgeDriver();
+        }
+
+        driver.manage().window().maximize();
+        driver.get(URL);
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        driver.findElement(By.id("username")).sendKeys(uName);
+        driver.findElement(By.id("password")).sendKeys(pWord);
+        driver.findElement(By.id("Login")).click();
+
+        driver.findElement(By.xpath("//button[@title='App Launcher']")).click();
+
+        WebElement sourceDropdown = driver.findElement(By.xpath("//button[@title='App Launcher']"));
+        sourceDropdown.click();
+
+        WebElement dd1 = driver.findElement(By.xpath("//button[contains(text(),'View All')]"));
+        dd1.click();
+
+        driver.findElement(By.xpath("//div[@data-name='Sales']")).click();
+
+        WebElement opportunities = driver.findElement(By.xpath("(//span[contains(text(),'Opportunities')])[2]"));
+        try {
+            opportunities.click();  // Attempting a standard click
+        } catch (ElementClickInterceptedException e) {
+            // If click is intercepted, fall back to JavaScript click
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", opportunities);
+        }
+    }
+
+    @AfterMethod
+    public void postCondition() {
+        driver.close();
+    }
+
+    @DataProvider(name = "FetchData")
+    public String[][] sendData() throws IOException {
+        return ReadExcel.readData(fileName);
+    }
+}
+
+...............................................................................................................................................
+//ReadExcel.java
+package marathon3;
+
+import java.io.IOException;
+
+
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+public class ReadExcel {
+
+	public static String[][] readData(String fileName) throws IOException {
+		
+       //To Open the workbook
+		XSSFWorkbook wb=new XSSFWorkbook("./Data/"+fileName+".xlsx");	
+		
+		//To enter into the worksheet
+		  XSSFSheet sheet = wb.getSheet("Sheet1");
+		
+	   //To count the number of rows   -Excludes the header
+		int rowCount = sheet.getLastRowNum();
+		System.out.println("Without row 1: "+rowCount);
+		
+		/*
+		//Count the number of rows- Including the header
+		int physicalNumberOfRows = sheet.getPhysicalNumberOfRows();
+		System.out.println("With row 1: "+physicalNumberOfRows);
+		*/
+		
+		//To count the number of columns
+		int columnCount = sheet.getRow(0).getLastCellNum();
+		System.out.println("Column Count: "+columnCount);
+		
+		/*
+		//To retrieve a particular value
+		String rowColumnData = sheet.getRow(1).getCell(1).getStringCellValue();
+		System.out.println("Data1 is : "+rowColumnData);
+		*/
+		
+		//To retrieve the entire value
+		String[][] data = new String [rowCount] [columnCount];
+		
+		for (int i = 1; i <=rowCount ; i++) {
+	    XSSFRow row = sheet.getRow(i);
+			
+	    
+		for (int j = 0; j < columnCount; j++) {
+				String allData = row.getCell(j).getStringCellValue();
+				System.out.println("Data are: "+allData);
+				data [i-1] [j] = allData; 
+				
+			}
+		
+	    wb.close();
+	    
+		}
+		return data;
+	}
+}
+...............................................................................................................................................
+//Testcase1.java (create opportunity)
+
+package marathon3;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+public class Testcase1 extends BaseClass {
+	
+	@BeforeTest
+	public void setValues() {
+		fileName="CreateOpportunity";
+
+	}
+	
+	@Test(dataProvider = "FetchData")
+	public void runTestcase1(String OpportunityName, String Amount ) {
+
+	//click the new opportunity from the dropdown
+	
+	Actions actions1 = new Actions(driver);
+	WebElement dropdownElement1 = driver.findElement(By.xpath("//span[contains(text(),'New Opportunity')]"));
+	actions1.moveToElement(dropdownElement1).click().build().perform();
+
+	// fill the new opportunity form
+	
+	//WebElement opportunityName = driver.findElement(By.xpath("//label[contains(text(),'Opportunity Name')]"));
+	
+	//enter your name
+	driver.findElement(By.xpath("//input[@name='Name']")).sendKeys(OpportunityName);
+	//enter the amount
+	driver.findElement(By.xpath("//input[@name='Amount']")).sendKeys(Amount);
+	//enter the close date
+	driver.findElement(By.xpath("//input[@name='CloseDate']")).click();
+	
+	driver.findElement(By.xpath("//button/span[contains(text(),'Select a date for Close Date')]"));
+	
+	driver.findElement(By.xpath("//tbody/tr/td[@data-value=\"2024-08-23\"]")).click();
+	
+	driver.findElement(By.xpath("//button[@aria-label='Stage']")).click();
+	
+	Actions actions2 = new Actions(driver);
+	WebElement dropdownElement2 = driver.findElement(By.xpath("//span[@title='Needs Analysis']"));
+	actions2.moveToElement(dropdownElement2).click().build().perform();
+	
+	driver.findElement(By.xpath("//button[@name='SaveEdit']")).click();
+	
+	//verify the creation of the user
+	driver.findElement(By.xpath("//slot//lightning-formatted-text[contains(text(),'Salesforce Automation by Dharma')]"));
+	System.out.println("user was created successfully");
+	
+}
+}
+...............................................................................................................................................
+
+//Testcase2.java ( edit opportunity)
+
+package marathon3;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptException;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+public class Testcase2 extends BaseClass {
+	
+	@BeforeTest 
+	public void setValues() {
+		fileName="EditOpportunity";
+
+	}
+	
+	
+	
+	@Test(dataProvider = "FetchData" , dependsOnMethods = "runTestcase1")
+	public void runTestcase2(String OpportunityName ) {
+		
+		// Search for the Opportunity 'Salesforce Automation by Dharma'
+		
+		WebElement dharmaAutomation = driver.findElement(By.xpath("//span[contains(text(),'Salesforce Automation by Dharma')]"));
+
+			        JavascriptExecutor jsExecutor1 = (JavascriptExecutor) driver;
+
+			        try {
+			            // Attempt to click the element using JavascriptExecutor
+			            jsExecutor1.executeScript("arguments[0].click();", dharmaAutomation);
+
+			            // Execute a JavaScript timeout function (for demonstration purposes)
+			            jsExecutor1.executeScript("setTimeout(function(){ console.log('Executed after 5 seconds'); }, 5000);");
+
+			        } catch (JavascriptException e) {
+			            System.out.println("Error executing JavaScript: " + e.getMessage());
+			        }
+			        
+			        
+		 //click the dropdown to select edit
+			        
+			        WebElement moreActions = driver.findElement(By.xpath("//slot//span[contains(text(),'Show more actions')]"));
+			        
+			        JavascriptExecutor jsExecutor2 = (JavascriptExecutor) driver;
+
+			        try {
+			            // Attempt to click the element using JavascriptExecutor
+			            jsExecutor2.executeScript("arguments[0].click();", moreActions);
+
+			            // Execute a JavaScript timeout function (for demonstration purposes)
+			            jsExecutor2.executeScript("setTimeout(function(){ console.log('Executed after 5 seconds'); }, 5000);");
+
+			        } catch (JavascriptException e) {
+			            System.out.println("Error executing JavaScript: " + e.getMessage());
+			        }
+			        
+			       
+			        
+		// select the edit dropdown to perform actions
+			        
+			        Actions actions1 = new Actions(driver);
+					WebElement dropdownElement1 = driver.findElement(By.xpath("//a/span[contains(text(),'Edit')]"));
+					actions1.moveToElement(dropdownElement1).click().build().perform();
+					
+					//enter the close date
+					driver.findElement(By.xpath("//input[@name='CloseDate']")).click();
+					
+					driver.findElement(By.xpath("//button/span[contains(text(),'Select a date for Close Date')]"));
+					
+					driver.findElement(By.xpath("//tbody/tr/td[@data-value=\"2024-08-24\"]")).click();
+					
+
+					driver.findElement(By.xpath("//button[@aria-label='Stage']")).click();
+					
+					Actions actions2 = new Actions(driver);
+					WebElement dropdownElement2 = driver.findElement(By.xpath("//span[@title='Perception Analysis']"));
+					actions2.moveToElement(dropdownElement2).click().build().perform();
+					
+
+					WebElement Status = driver.findElement(By.xpath("//button[@aria-label='Delivery/Installation Status']"));
+					
+					JavascriptExecutor jsExecutor3 = (JavascriptExecutor) driver;
+
+			        try {
+			            // Attempt to click the element using JavascriptExecutor
+			            jsExecutor3.executeScript("arguments[0].click();", Status);
+
+			            // Execute a JavaScript timeout function (for demonstration purposes)
+			            jsExecutor3.executeScript("setTimeout(function(){ console.log('Executed after 5 seconds'); }, 5000);");
+
+			        } catch (JavascriptException e) {
+			            System.out.println("Error executing JavaScript: " + e.getMessage());
+			        }
+			        
+			       WebElement progress = driver.findElement(By.xpath("//span[@title='In progress']"));
+			      
+			       JavascriptExecutor jsExecutor4 = (JavascriptExecutor) driver;
+
+			        try {
+			            // Attempt to click the element using JavascriptExecutor
+			            jsExecutor4.executeScript("arguments[0].click();", progress);
+
+			            // Execute a JavaScript timeout function (for demonstration purposes)
+			            jsExecutor4.executeScript("setTimeout(function(){ console.log('Executed after 5 seconds'); }, 5000);");
+
+			        } catch (JavascriptException e) {
+			            System.out.println("Error executing JavaScript: " + e.getMessage());
+			        }
+			       
+					
+		// Enter Description as "SalesForce"
+					driver.findElement(By.xpath("//span//textarea[@part='textarea']")).sendKeys(OpportunityName);
+					
+					
+
+		// save the form
+					driver.findElement(By.xpath("//button[@name='SaveEdit']")).click();
+					
+		//verify the new edit of the user
+					driver.findElement(By.xpath("//a[@data-tab-name='Perception Analysis']"));
+					System.out.println("user was changed to Perception successfully");	
+		
+	}
+	}
+...............................................................................................................................................
+//Testcase3.java ( delete opportunity)
+
+package marathon3;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptException;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.testng.annotations.Test;
+
+public class Testcase3 extends BaseClass {
+	
+	@Test(dependsOnMethods = {"runTestcase1","runTestcase2"})
+	public void runTestcase3() {
+		
+		// Search for the Opportunity 'Salesforce Automation by Dharma'
+		
+				 WebElement dharmaAutomation = driver.findElement(By.xpath("//span[contains(text(),'Salesforce Automation by Dharma')]"));
+
+			        JavascriptExecutor jsExecutor1 = (JavascriptExecutor) driver;
+
+			        try {
+			            // Attempt to click the element using JavascriptExecutor
+			            jsExecutor1.executeScript("arguments[0].click();", dharmaAutomation);
+
+			            // Execute a JavaScript timeout function (for demonstration purposes)
+			            jsExecutor1.executeScript("setTimeout(function(){ console.log('Executed after 5 seconds'); }, 5000);");
+
+			        } catch (JavascriptException e) {
+			            System.out.println("Error executing JavaScript: " + e.getMessage());
+			        }
+			        
+
+			        //click the dropdown to select edit
+			        
+			        WebElement moreActions = driver.findElement(By.xpath("//slot//span[contains(text(),'Show more actions')]"));
+			        
+			        JavascriptExecutor jsExecutor2 = (JavascriptExecutor) driver;
+
+			        try {
+			            // Attempt to click the element using JavascriptExecutor
+			            jsExecutor2.executeScript("arguments[0].click();", moreActions);
+
+			            // Execute a JavaScript timeout function (for demonstration purposes)
+			            jsExecutor2.executeScript("setTimeout(function(){ console.log('Executed after 5 seconds'); }, 5000);");
+
+			        } catch (JavascriptException e) {
+			            System.out.println("Error executing JavaScript: " + e.getMessage());
+			        }
+			        
+			       
+			        
+			        // select the Delete dropdown to perform actions
+			        
+			        Actions actions1 = new Actions(driver);
+					WebElement dropdownElement1 = driver.findElement(By.xpath("//a//span[contains(text(),'Delete')]"));
+					actions1.moveToElement(dropdownElement1).click().build().perform();
+					
+					
+					driver.findElement(By.xpath("//button[@title='Delete']")).click();
+					
+					
+					//verify the deletion of the user
+					
+					driver.findElement(By.xpath("//slot//lightning-formatted-text[contains(text(),'Salesforce Automation by Dharma')]"));
+					System.out.println("user was deleted successfully");
+		
+	}
+	}
+......................................................................................................................................
+
+//marathon3Sequential.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Suite" verbose="5">
+    <parameter name="browser" value="Chrome"/>
+    <parameter name="url" value="https://login.salesforce.com"/>
+    <parameter name="username" value="vinothkumar@testleaf.com"/>
+    <parameter name="password" value="SeleniumChallenge@24"/>
+  
+    <test name="Test" thread-count="5">
+        <classes>
+        
+            <class name="marathon3.Testcase1"/>
+            
+            <class name="marathon3.Testcase2"/>
+            
+            <class name="marathon3.Testcase3"/>
+        </classes>
+    </test>
+</suite>
+
+...............................................................................................................................
+
+
+
