@@ -209,7 +209,7 @@ public class Testcase2 extends BaseClass {
 	
 	
 	
-	@Test(dataProvider = "FetchData" , dependsOnMethods = "runTestcase1")
+	@Test(dataProvider = "FetchData" , dependsOnMethods = "marathon3.Testcase1.runTestcase1")
 	public void runTestcase2(String OpportunityName ) {
 		
 		// Search for the Opportunity 'Salesforce Automation by Dharma'
@@ -329,7 +329,7 @@ import org.testng.annotations.Test;
 
 public class Testcase3 extends BaseClass {
 	
-	@Test(dependsOnMethods = {"runTestcase1","runTestcase2"})
+	@Test(dependsOnMethods = {"marathon3.Testcase1.runTestcase1","marathon3.Testcase2.runTestcase2"})
 	public void runTestcase3() {
 		
 		// Search for the Opportunity 'Salesforce Automation by Dharma'
